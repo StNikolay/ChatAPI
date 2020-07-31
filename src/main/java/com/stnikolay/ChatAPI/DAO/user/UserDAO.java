@@ -4,7 +4,7 @@ import com.stnikolay.ChatAPI.model.User;
 
 public interface UserDAO {
 
-    void registration(String username, String password);
+    User registration(String username, String password);
 
     User findUserByUsername(String username);
 
