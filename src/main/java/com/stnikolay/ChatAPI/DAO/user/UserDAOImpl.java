@@ -13,11 +13,12 @@ public class UserDAOImpl implements UserDAO {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public void registration(String username, String password) {
+    public User registration(String username, String password) {
         jdbcTemplate.update(
                 "insert into t_user(username, password) values (?, ?)",
                 username, password
         );
+        return findUserByUsername(username);
     }
 
     @Override
