@@ -30,4 +30,13 @@ public class UserDAOImpl implements UserDAO {
         ).stream().findAny().orElse(null);
     }
 
+    @Override
+    public User findById(Long id) {
+        return jdbcTemplate.query(
+                "select * from t_user where id = ?",
+                new Object[] { id },
+                new BeanPropertyRowMapper<>(User.class)
+        ).stream().findAny().orElse(null);
+    }
+
 }
