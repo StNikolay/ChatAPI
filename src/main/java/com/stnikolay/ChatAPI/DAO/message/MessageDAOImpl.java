@@ -1,10 +1,15 @@
 package com.stnikolay.ChatAPI.DAO.message;
 
 import com.stnikolay.ChatAPI.DAO.user.UserDAO;
+import com.stnikolay.ChatAPI.model.Dialogue;
 import com.stnikolay.ChatAPI.model.Message;
+import com.stnikolay.ChatAPI.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class MessageDAOImpl implements MessageDAO {
@@ -17,8 +22,7 @@ public class MessageDAOImpl implements MessageDAO {
     @Override
     public Message sendMessage(Message message) {
 
-        message.getSender().setId(userDAO.findUserByUsername(message.getSender().getUsername()).getId());
-        message.getReceiver().setId(userDAO.findUserByUsername(message.getReceiver().getUsername()).getId());
+        setRightIdsForUsers(message.getSender(), message.getReceiver());
 
         if (checkForExistence(message)) {
             jdbcTemplate.update(
@@ -34,11 +38,38 @@ public class MessageDAOImpl implements MessageDAO {
 
         message.setId(getMessageId(message));
         return message;
+    }
 
+    @Override
+    public List<Message> getDialogueMessages(Dialogue dialogue) {
+
+        setRightIdsForUsers(dialogue.getUser(), dialogue.getInterlocutor());
+
+        return jdbcTemplate.query(
+                "select * from t_message " +
+                        "where ((sender = ? and receiver = ?) or (sender = ? and receiver = ?)) and date = ? " +
+                        "order by time",
+                new Object[] {
+                        dialogue.getUser().getId(),
+                        dialogue.getInterlocutor().getId(),
+                        dialogue.getInterlocutor().getId(),
+                        dialogue.getUser().getId(),
+                        dialogue.getDate()
+                },
+                (rs, rowNum) -> {
+                    Message message = new Message();
+                    message.setId(rs.getLong("id"));
+                    message.setSender(userDAO.findById(rs.getLong("sender")));
+                    message.setReceiver(userDAO.findById(rs.getLong("receiver")));
+                    message.setText(rs.getString("text"));
+                    message.setTime(rs.getString("time"));
+                    message.setDate(rs.getString("date"));
+                    return message;
+                }
+        );
     }
 
     private Long getMessageId(Message message) {
-
         return jdbcTemplate.queryForObject(
                 "select id from t_message " +
                         "where sender = ? and receiver = ? and text = ? and time = ? and date = ?",
@@ -49,11 +80,14 @@ public class MessageDAOImpl implements MessageDAO {
                 message.getTime(),
                 message.getDate()
         );
+    }
 
+    private void setRightIdsForUsers(User user1, User user2) {
+        user1.setId(userDAO.findUserByUsername(user1.getUsername()).getId());
+        user2.setId(userDAO.findUserByUsername(user2.getUsername()).getId());
     }
 
     private boolean checkForExistence(Message message) {
-
         return jdbcTemplate.queryForObject("select count(*) from t_message " +
                         "where sender = ? and receiver = ? and text = ? and time = ? and date = ?",
                 Integer.class,
@@ -63,7 +97,6 @@ public class MessageDAOImpl implements MessageDAO {
                 message.getTime(),
                 message.getDate()
         ) == 0;
-
     }
 
 }
