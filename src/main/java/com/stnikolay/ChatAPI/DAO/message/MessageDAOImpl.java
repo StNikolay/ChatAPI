@@ -41,20 +41,18 @@ public class MessageDAOImpl implements MessageDAO {
     }
 
     @Override
-    public List<Message> getDialogueMessages(Dialogue dialogue) {
+    public Dialogue getDialogueMessages(String user, String interlocutor, String date) {
 
-        setRightIdsForUsers(dialogue.getUser(), dialogue.getInterlocutor());
-
-        return jdbcTemplate.query(
+        return new Dialogue(jdbcTemplate.query(
                 "select * from t_message " +
                         "where ((sender = ? and receiver = ?) or (sender = ? and receiver = ?)) and date = ? " +
                         "order by time",
                 new Object[] {
-                        dialogue.getUser().getId(),
-                        dialogue.getInterlocutor().getId(),
-                        dialogue.getInterlocutor().getId(),
-                        dialogue.getUser().getId(),
-                        dialogue.getDate()
+                        userDAO.findUserByUsername(user).getId(),
+                        userDAO.findUserByUsername(interlocutor).getId(),
+                        userDAO.findUserByUsername(interlocutor).getId(),
+                        userDAO.findUserByUsername(user).getId(),
+                        date
                 },
                 (rs, rowNum) -> {
                     Message message = new Message();
@@ -66,7 +64,7 @@ public class MessageDAOImpl implements MessageDAO {
                     message.setDate(rs.getString("date"));
                     return message;
                 }
-        );
+        ));
     }
 
     private Long getMessageId(Message message) {
