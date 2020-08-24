@@ -1,32 +1,23 @@
 package com.stnikolay.ChatAPI.model;
 
+import java.util.List;
+
 public class Dialogue {
 
-    private User user;
-    private User interlocutor;
-    private String date;
+    private List<Message> messages;
 
-    public User getUser() {
-        return user;
+    public Dialogue() {
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public Dialogue(List<Message> messages) {
+        this.messages = messages;
     }
 
-    public User getInterlocutor() {
-        return interlocutor;
+    public List<Message> getMessages() {
+        return messages;
     }
 
-    public void setInterlocutor(User interlocutor) {
-        this.interlocutor = interlocutor;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 }

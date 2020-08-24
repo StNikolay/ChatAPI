@@ -39,4 +39,13 @@ public class UserDAOImpl implements UserDAO {
         ).stream().findAny().orElse(null);
     }
 
+    @Override
+    public boolean checkForExistence(String username, String password) {
+        return jdbcTemplate.queryForObject("select count(*) from t_user " +
+                        "where username = ? and password = ?",
+                Integer.class,
+                username,
+                password
+        ) != 0;
+    }
 }

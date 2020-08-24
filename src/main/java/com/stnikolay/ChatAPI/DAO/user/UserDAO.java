@@ -10,4 +10,6 @@ public interface UserDAO {
 
     User findById(Long id);
 
+    boolean checkForExistence(String username, String password);
+
 }

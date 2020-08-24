@@ -9,6 +9,6 @@ public interface MessageDAO {
 
     Message sendMessage(Message message);
 
-    List<Message> getDialogueMessages(Dialogue dialogue);
+    Dialogue getDialogueMessages(String user, String interlocutor, String date);
 
 }
