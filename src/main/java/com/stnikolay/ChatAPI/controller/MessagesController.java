@@ -15,13 +15,15 @@ public class MessagesController {
     @Autowired
     private MessageDAO messageDAO;
 
-    @PostMapping("/send")
+    @PostMapping
     public Message send(@RequestBody Message message) {
         return messageDAO.sendMessage(message);
     }
 
-    @GetMapping("/dialogue_for_date")
-    public List<Message> messageList(@RequestBody Dialogue dialogue) {
-        return messageDAO.getDialogueMessages(dialogue);
+    @GetMapping
+    public Dialogue messageList(@RequestParam String user,
+                                @RequestParam String interlocutor,
+                                @RequestParam String date) {
+        return messageDAO.getDialogueMessages(user , interlocutor, date);
     }
 }
